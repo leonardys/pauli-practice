@@ -1,10 +1,8 @@
-package practice
+package internal
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
-	"os"
 	"strconv"
 	"time"
 
@@ -102,20 +100,8 @@ type saveOkMsg int
 
 func saveLogToJSON(m Model) tea.Cmd {
 	return func() tea.Msg {
-		var sessions []Session
+		err := saveData("data.json", m.ThisSession)
 
-		data, err := os.ReadFile("data.json")
-		if err != nil {
-			sessions = make([]Session, 0)
-
-		} else {
-			json.Unmarshal(data, &sessions)
-		}
-
-		sessions = append(sessions, m.ThisSession)
-
-		json, _ := json.Marshal(sessions)
-		err = os.WriteFile("data.json", json, 0644)
 		if err != nil {
 			return saveErrMsg{err}
 		}
