@@ -100,10 +100,12 @@ type saveOkMsg int
 
 func saveLogToJSON(m Model) tea.Cmd {
 	return func() tea.Msg {
-		err := saveData("data.json", m.ThisSession)
+		if len(m.ThisSession.Logs) > 0 {
+			err := saveData("data.json", m.ThisSession)
 
-		if err != nil {
-			return saveErrMsg{err}
+			if err != nil {
+				return saveErrMsg{err}
+			}
 		}
 
 		return saveOkMsg(1)
