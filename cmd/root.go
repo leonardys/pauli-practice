@@ -9,7 +9,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "pauli-practice",
 	Short: "Pauli test preparation",
-	Long:  "An application that lets you practice and track you progress on pauli test.",
+	Long:  "An application that lets you practice and track your progress on pauli test.",
 }
 
 func Execute() {
