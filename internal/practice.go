@@ -21,62 +21,62 @@ type Question struct {
 	Shown, Answered time.Time
 }
 
-type Model struct {
-	CurrQuestion               Question
+type model struct {
+	currQuestion               Question
 	ThisSession                Session
-	CorrectAnswer, TotalAnswer int
-	Keymap                     Keymap
-	Help                       help.Model
+	correctAnswer, totalAnswer int
+	keymap                     keymap
+	help                       help.Model
 }
 
-type Keymap struct {
-	Quit key.Binding
+type keymap struct {
+	quit key.Binding
 }
 
-func New() Model {
-	m := Model{
-		CurrQuestion: Question{Q1: rand.Intn(10), Q2: rand.Intn(10), Shown: time.Now()},
+func New() model {
+	m := model{
+		currQuestion: Question{Q1: rand.Intn(10), Q2: rand.Intn(10), Shown: time.Now()},
 		ThisSession:  Session{StartTime: time.Now(), Logs: make([]Question, 0)},
-		Keymap: Keymap{
-			Quit: key.NewBinding(
+		keymap: keymap{
+			quit: key.NewBinding(
 				key.WithKeys("q"),
 				key.WithHelp("q", "quit"),
 			),
 		},
-		Help: help.New(),
+		help: help.New(),
 	}
 	return m
 }
 
-func (m Model) Init() tea.Cmd {
+func (m model) Init() tea.Cmd {
 	return nil
 }
 
-func (m Model) helpView() string {
-	return "\n" + m.Help.ShortHelpView([]key.Binding{
-		m.Keymap.Quit,
+func (m model) helpView() string {
+	return "\n" + m.help.ShortHelpView([]key.Binding{
+		m.keymap.quit,
 	})
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, m.Keymap.Quit):
+		case key.Matches(msg, m.keymap.quit):
 			m.ThisSession.Endtime = time.Now()
 			return m, saveLogToJSON(m)
 		default:
 			if v, err := strconv.Atoi(msg.String()); err == nil {
-				if v == (m.CurrQuestion.Q1+m.CurrQuestion.Q2)%10 {
-					m.CorrectAnswer += 1
+				if v == (m.currQuestion.Q1+m.currQuestion.Q2)%10 {
+					m.correctAnswer += 1
 				}
-				m.CurrQuestion.Answer = v
-				m.CurrQuestion.Answered = time.Now()
+				m.currQuestion.Answer = v
+				m.currQuestion.Answered = time.Now()
 
-				m.TotalAnswer += 1
+				m.totalAnswer += 1
 
-				m.ThisSession.Logs = append(m.ThisSession.Logs, m.CurrQuestion)
-				m.CurrQuestion = Question{Q1: m.CurrQuestion.Q2, Q2: rand.Intn(10), Shown: time.Now()}
+				m.ThisSession.Logs = append(m.ThisSession.Logs, m.currQuestion)
+				m.currQuestion = Question{Q1: m.currQuestion.Q2, Q2: rand.Intn(10), Shown: time.Now()}
 			}
 		}
 	case saveOkMsg:
@@ -86,10 +86,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m Model) View() string {
+func (m model) View() string {
 	s := "Pauli Test Practice\n\n"
-	s += fmt.Sprintf("Correct Answers: %d / %d\n\n", m.CorrectAnswer, m.TotalAnswer)
-	s += fmt.Sprintf("%d\n%d\n", m.CurrQuestion.Q1, m.CurrQuestion.Q2)
+	s += fmt.Sprintf("Correct Answers: %d / %d\n\n", m.correctAnswer, m.totalAnswer)
+	s += fmt.Sprintf("%d\n%d\n", m.currQuestion.Q1, m.currQuestion.Q2)
 	s += m.helpView()
 
 	return s
@@ -98,7 +98,7 @@ func (m Model) View() string {
 type saveErrMsg struct{ err error }
 type saveOkMsg int
 
-func saveLogToJSON(m Model) tea.Cmd {
+func saveLogToJSON(m model) tea.Cmd {
 	return func() tea.Msg {
 		if len(m.ThisSession.Logs) > 0 {
 			err := saveData("data.json", m.ThisSession)
