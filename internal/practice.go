@@ -21,7 +21,7 @@ type Question struct {
 	Shown, Answered time.Time
 }
 
-type model struct {
+type practiceModel struct {
 	currQuestion               Question
 	ThisSession                Session
 	correctAnswer, totalAnswer int
@@ -33,8 +33,8 @@ type keymap struct {
 	quit key.Binding
 }
 
-func New() model {
-	m := model{
+func NewPracticeModel() practiceModel {
+	m := practiceModel{
 		currQuestion: Question{Q1: rand.Intn(10), Q2: rand.Intn(10), Shown: time.Now()},
 		ThisSession:  Session{StartTime: time.Now(), Logs: make([]Question, 0)},
 		keymap: keymap{
@@ -48,17 +48,17 @@ func New() model {
 	return m
 }
 
-func (m model) Init() tea.Cmd {
+func (m practiceModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) helpView() string {
+func (m practiceModel) helpView() string {
 	return "\n" + m.help.ShortHelpView([]key.Binding{
 		m.keymap.quit,
 	})
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m practiceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -86,7 +86,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m practiceModel) View() string {
 	s := "Pauli Test Practice\n\n"
 	s += fmt.Sprintf("Correct Answers: %d / %d\n\n", m.correctAnswer, m.totalAnswer)
 	s += fmt.Sprintf("%d\n%d\n", m.currQuestion.Q1, m.currQuestion.Q2)
@@ -98,7 +98,7 @@ func (m model) View() string {
 type saveErrMsg struct{ err error }
 type saveOkMsg int
 
-func saveLogToJSON(m model) tea.Cmd {
+func saveLogToJSON(m practiceModel) tea.Cmd {
 	return func() tea.Msg {
 		if len(m.ThisSession.Logs) > 0 {
 			err := saveData("data.json", m.ThisSession)

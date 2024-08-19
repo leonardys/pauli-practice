@@ -13,7 +13,7 @@ var practiceCmd = &cobra.Command{
 	Use:   "practice",
 	Short: "Start a pauli test practice session",
 	Run: func(cmd *cobra.Command, args []string) {
-		p := tea.NewProgram(practice.New(), tea.WithAltScreen())
+		p := tea.NewProgram(practice.NewPracticeModel(), tea.WithAltScreen())
 
 		if _, err := p.Run(); err != nil {
 			fmt.Println(err)
